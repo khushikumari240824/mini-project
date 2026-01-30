@@ -1,14 +1,60 @@
-function searchProduct() {
-    let input = document.getElementById("search").value.toLowerCase();
-    let cards = document.getElementsByClassName("card");
+let products=[]
+let container=document.getElementById("main");
+fetch("https://dummyjson.com/products")
+    .then(response=> response.json()) 
+    .then(data=>{ 
+        products=data.products;
+        display(products);
+    })
+    .catch(error=>{
+        console.log("Error: ",error);
+    });
 
-    for (let i = 0; i < cards.length; i++) {
-        let productName = cards[i].getElementsByTagName("p")[0].innerText.toLowerCase();
-
-        if (productName.includes(input)) {
-            cards[i].style.display = "block";
-        } else {
-            cards[i].style.display = "none";
-        }
-    }
+function display(products){
+            container.innerHTML="";
+            if(products.length==0){
+                container.innerHTML="<h2>No product available<h2>";
+                return;
+            }
+            products.forEach(product => {
+            let card=document.createElement("div");
+            card.className="card";
+            let img=document.createElement("img")
+            img.src=product.thumbnail;
+            let name=document.createElement("h3")
+            name.textContent=product.title;
+            let price=document.createElement("p")
+            price.textContent="$ "+product.price
+            card.appendChild(img);
+            card.appendChild(name);
+            card.appendChild(price);
+            container.appendChild(card);
+        });
 }
+// by using button
+let btn=document.getElementById("btn")
+btn.addEventListener("click",()=>{
+    // save to local storage
+    let history=JSON.parse(localStorage.getItem("searchHistory")) || [];
+    if(!history.includes(query)){
+        history.push({
+            query:query,
+            time:Date.now()
+        });
+        localStorage.setItem("searchHistory",JSON.stringify(history));
+    }
+    let val=document.getElementById("box").value.toLowerCase();
+    let filterProducts=products.filter((product)=>{
+       return product.title.toLowerCase().includes(val);
+    },0)
+    display(filterProducts);
+    
+})
+// by using input
+// document.getElementById("box").addEventListener("input",(e)=>{
+//     let val=e.target.value.toLowerCase();
+//     let filterProducts=products.filter((product)=>{
+//        return product.title.toLowerCase().includes(val);
+//     },0)
+//     display(filterProducts);
+// })
